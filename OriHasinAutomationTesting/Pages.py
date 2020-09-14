@@ -7,16 +7,9 @@ from time import sleep
 class HomePage:
     def __init__(self,driver):
         self.driver=driver
-    def HeadPhonesIcon (self):
-        return self.driver.find_element_by_id("headphonesImg")
-    def TabletsIcon(self):
-        return self.driver.find_element_by_id("tabletsImg")
-    def LaptopsIcon(self):
-        return self.driver.find_element_by_id("laptopsImg")
-    def SpeakersIcon(self):
-        return self.driver.find_element_by_id("speakersImg")
-    def MiceIcon(self):
-        return self.driver.find_element_by_id("miceImg")
+    def CategoryIcon(self,category):
+       return self.driver.find_element_by_id(f"{category.lower()}Img")
+
 class CartPage:
     def __init__(self,driver):
         self.driver=driver
@@ -32,12 +25,26 @@ class CategoryPage:
     def GetProducts(self):
         return self.driver.find_elements_by_css_selector("img[class='imgProduct']")
 
-# driver=webdriver.Chrome(executable_path="C:/Users/User/Desktop/Ori Selenium/chromedriver.exe")
-# driver.get("https://www.advantageonlineshopping.com/#/category/Tablets/3")
+class ProductPage:
+    def __init__(self,driver):
+        self.driver=driver
+    def SwitchColor(self,color):
+        self.driver.find_element_by_xpath(f"//span[@title='{color.upper()}']").click()
+
+
+driver=webdriver.Chrome(executable_path="C:/selenium_driver/chromedriver.exe")
+driver.get("http://advantageonlineshopping.com/#/")
 # CP=CategoryPage(driver)
 # sleep(10)
 # list1=CP.GetProducts()
 # list1[1].click()
+# sleep(3)
+# pp1=ProductPage(driver)
+# pp1.SwitchColor("gray")
+hp1=HomePage(driver)
+sleep(5)
+hp1.CategoryIcon("Headphones").click()
+
 
 
 
