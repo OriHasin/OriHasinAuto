@@ -39,25 +39,22 @@ class CartIcon:
     def __init__(self,driver):
         self.driver=driver
 
-    def CartIcon(self): # מצביע על אייקון העגלה
+    def CartIcon(self):
         return self.driver.find_element_by_id("shoppingCartLink")
 
-    def NumberOfProducts(self): # מחזיר טקסט של כמות המוצרים באייקון עגלה
+    def NumberOfProducts(self):
         return self.driver.find_element_by_xpath('//header//a/span[@ng-show="(cart | productsCartCount) > 0"]').text
 
-    def QtyInCartIcon(self,index): # מחזיר טקסט של כמות מוצר ספיציפי באייקון עגלה
+    def QtyInCartIcon(self,index):
         return self.driver.find_elements_by_xpath("//lable[contains(text(),'QTY')]")[index].text
 
-    def PriceInCartIcon(self,index): # מחזיר טקסט של מחיר מוצר ספציפי באייקון עגלה
+    def PriceInCartIcon(self,index):
         return self.driver.find_elements_by_class_name("price roboto-regular ng-binding")[index].text
-
-    def ColorInCartIcon(self,index): # מחזיר טקסט של צבע מוצר ספציפי באייקון עגלה
+    def ColorInCartIcon(self,index):
         return self.driver.find_elements_by_css_selector("span[class='ng-binding']")[index].text
-
-    def NameInCartIcon(self,index): # מחזיר טקסט של שם מוצר ספציפי באייקון עגלה
+    def NameInCartIcon(self,index):
         return self.driver.find_elements_by_css_selector("h3[class='ng-binding']")[index].text
-
-    def RemoveInCartIcon(self,index): #מוחק מוצר ספציפי מאייקון עגלה
+    def RemoveInCartIcon(self,index):
         return self.driver.find_elements_by_css_selector("[class='removeProduct iconCss iconX']")[index].click()
 
 
@@ -65,14 +62,18 @@ class CartIcon:
 
 
 class CategoryPage:
+
     def __init__(self,driver):
         self.driver=driver
 
-    def GetProduct(self,index): # כניסה לדף מוצר ספציפי
+    def GetProduct(self,index):
          self.driver.find_elements_by_css_selector("img[class='imgProduct']")[index].click()
 
-    def BackToHomepage(self): # לחיצה על דף HomePage בדף קטגוריה
+    def BackToHomepage(self):
          self.driver.find_element_by_xpath('// a[ @ translate = "HOME"]').click()
+
+    def ProductsInCategory(self):
+        return len(self.driver.find_elements_by_css_selector("img[class='imgProduct']"))
 
     def WaitToCategorypage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "imgProduct")))
@@ -81,67 +82,35 @@ class CategoryPage:
 ###############################################################################################
 
 class ProductPage:
+
     def __init__(self,driver):
         self.driver=driver
 
-    def SwitchColor(self,color): # בחירת צבע בדף מוצר
+    def SwitchColor(self,color): # Choosing a color for product
         return self.driver.find_element_by_xpath(f"//span[@title='{color.upper()}']")
 
-    def PlusQuantity(self,quantity): # הוספת כמות בדף מוצר
+    def PlusQuantity(self,quantity): # Clicking on '+' button
         for i in range(quantity):
             self.driver.find_element_by_xpath("//div[@class='plus']").click()
 
     def AddToCartButton(self):
         self.driver.find_element_by_xpath('//button[@name="save_to_cart"]').click()
 
-
-    def BackToCategory(self): # לחיצה על דף Category בדף מוצר
+    def BackToCategory(self):
          self.driver.find_element_by_xpath('//a[@class="ng-binding"]').click()
 
+    def ProductAttributes(self): # Create a list with attributes of specific product
+        list1=[]
+        list1.append(self.driver.find_element_by_css_selector("h1[class='roboto-regular screen768 ng-binding']").text) # Name
+        list1.append(self.driver.find_element_by_xpath("//span[@title]").get_attribute("title")) # Color
+        list1.append("") # Quantity
+        list1.append(self.driver.find_element_by_css_selector("article>div>div>h2[class='roboto-thin screen768 ng-binding']").text) # Price
+        return list1
+
     def WaitToProductpage(self):
-         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.NAME, "save_to_cart")))
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.NAME, "save_to_cart")))
 
 
-###############################################################################################
-
-
-# def main():
-#     driver = webdriver.Chrome(executable_path="C:/Users/User/Desktop/Ori Selenium/chromedriver.exe")
-#     driver.get("http://advantageonlineshopping.com/#/")
-
-
-# CP=CategoryPage(driver)
-# sleep(10)
-# list1=CP.GetProducts()
-# list1[1].click()
-# sleep(3)
-# pp1=ProductPage(driver)
-# pp1.SwitchColor("gray")
-
-#hp1=HomePage(driver)
-#sleep(8)
-#hp1.CategoryIcon("Headphones").click()
-#cp=CategoryPage(driver)
-#sleep(3)
-#list1=cp.GetProducts()
-#print(len(list1))
-#list1[1].click()
-#sleep(3)
-#pp1=ProductPage(driver)
-#pp1.BackToCategory().click()
-#sleep(3)
-#try:
-#    list1[0].click()
-#except StaleElementReferenceException as Exception:
-#    print("Product not sync with the page document anymore")
-#    list1=cp.GetProducts()
-#    list1[0].click()
-#pp1.PlusQuantity(3)
-# pp1=ProductPage(driver)
-# pp1.SwitchColor("gray").click()
-# pp1.BackToCategory().click()
-# cp.BackToHomepage().click()
-# print (randint(5,10))
 
 
 
