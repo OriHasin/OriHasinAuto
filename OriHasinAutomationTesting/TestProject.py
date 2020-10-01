@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 from selenium import webdriver
-from OriHasinAutomationTesting.Pages import HomePage,CategoryPage,CartPage,CartIcon,ProductPage
+from OriHasinAutomationTesting.Pages import HomePage, CategoryPage, CartPage, CartIcon, ProductPage
 from random import randint
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,101 +10,76 @@ from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import StaleElementReferenceException
 from time import sleep
 
+
 class AOSTests(TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Chrome(executable_path="C:/Users/User/Desktop/Ori Selenium/chromedriver.exe")
+        self.driver = webdriver.Chrome(executable_path="C:/Users/admin/Desktop/Drivers/chromedriver.exe")
         self.driver.get("http://advantageonlineshopping.com/#/")
-        self.ListOfCategories=['headphones','mice','tablets','laptops','speakers']
-        self.Hpage = HomePage(self.driver)
-        self.Cpage = CategoryPage(self.driver)
-        self.Ppage = ProductPage(self.driver)
-        self.Cicon=CartIcon(self.driver)
-        self.Cartpage=CartPage(self.driver)
+        self.ListOfCategories = ['headphones', 'mice', 'tablets', 'laptops', 'speakers']
+        self.hpage = HomePage(self.driver)
+        self.cpage = CategoryPage(self.driver)
+        self.ppage = ProductPage(self.driver)
+        self.cicon = CartIcon(self.driver)
+        self.cartpage = CartPage(self.driver)
         self.driver.maximize_window()
 
-    def tearDown(self) :
+    def tearDown(self):
         self.driver.find_element_by_xpath('//div[@class="logo"]')
-        self.driver.close()
+        #self.driver.close()
 
-    def test1(self):
-        hpage1=HomePage(self.driver)
-        cpage1=CategoryPage(self.driver)
-        ppage1=ProductPage(self.driver)
-        cartIcon1=CartIcon(self.driver)
-        sumquantity=0
+    def test_Exercise1(self):
+        sumquantity = 0
         for i in range(2):
-            randomcategory=randint(0,4)
-            randomproduct=randint(0,2)
-            randomquantity=randint(1,5)
+            randomcategory = randint(0, 4)
+            randomproduct = randint(0, 2)
+            randomquantity = randint(1, 5)
             sumquantity += randomquantity
-            hpage1.WaitToHomepage()
-            hpage1.CategoryIcon(self.ListOfCategories[randomcategory])
-            cpage1.WaitToCategorypage()
-            cpage1.GetProduct(randomproduct)
-            ppage1.WaitToProductpage()
-            ppage1.PlusQuantity(randomquantity)
-            ppage1.AddToCartButton()
-            ppage1.BackToCategory()
-            cpage1.BackToHomepage()
+            self.hpage.WaitToHomepage()
+            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory])
+            self.cpage.WaitToCategorypage()
+            self.cpage.GetProduct(randomproduct)
+            self.ppage.WaitToProductpage()
+            self.ppage.PlusQuantity(randomquantity)
+            self.ppage.AddToCartButton()
+            self.ppage.BackToCategory()
+            self.cpage.BackToHomepage()
 
-        hpage1.WaitToHomepage()
+        self.hpage.WaitToHomepage()
         sleep(1)
-        self.assertEqual(int(cartIcon1.NumberOfProducts()),sumquantity+2 or int(cartIcon1.NumberOfProducts()),sumquantity+1 )
+        self.assertEqual(int(self.cicon.NumberOfProducts()), sumquantity + 2 or int(self.cicon.NumberOfProducts()),
+                         sumquantity + 1)
 
     def test_Exercise2(self):
-      #  pointer=3
-        plus=0
-        index=0
-        ListOfProducts = []
-
+        ListC = ['headphones', 'speakers', 'tablets', 'mice', 'laptops']
+        ListP = []  # List of products
+        ListPicon = []  # List of products in cart icon
+        ListNum = []  # List of index of products
+        num=2
+        num2=2
         for i in range(3):
-            index2=randint(0,4) # Index of category
-            self.Hpage.WaitToHomepage()
-            self.Hpage.CategoryIcon(self.ListOfCategories[index2])
-            self.Cpage.WaitToCategorypage()
-            index3=randint(0,self.Cpage.NumberOfProducts()-1) # Index of product
-            while index==1 and index3==1: # Specific product that Out Of Stock
-                index3=randint(0,self.Cpage.NumberOfProducts()-1)
-            self.Cpage.GetProduct(index3)
-            self.Ppage.WaitToProductpage()
-            self.Ppage.PlusQuantity(plus)
-            plus+=plus
-            ListOfProducts.append(self.Ppage.ProductAttributes())
-            ListOfProducts[i][2] = (plus+1) # Update quantity of product
-            ListOfProducts[i][3] = (plus+1) * ListOfProducts[i][3] # Update the price by quantity
-            self.Ppage.AddToCartButton()
-            self.Ppage.BackToCategory()
-            self.Cpage.BackToHomepage()
-        for i in range(3):
-            print(ListOfProducts[i][0],"hey")
-            print(self.Cicon.NameInCartIcon(2-i),"bye")
-            self.Cicon.CartIcon()
-            self.assertEqual(ListOfProducts[i][0], self.Cicon.NameInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][1], self.Cicon.ColorInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][2], self.Cicon.QtyInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][3], self.Cicon.PriceInCartIcon(2-i))
-            #pointer-=1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            #num = randint(0, 4)
+            self.hpage.WaitToHomepage()
+            self.hpage.CategoryIcon(ListC[num])
+            self.cpage.WaitToCategorypage()
+            #num2 = randint(0, self.cpage.ProductsInCategory()-1)
+            while num == 0 and num2 == 1 or (num,num2) in ListNum:  # Out of stock product OR multiply product
+                num2 = randint(0, self.cpage.ProductsInCategory()-1)
+            ListNum.append((num,num2))
+            print("ListNum = ",ListNum)  # debug
+            self.cpage.GetProduct(num2)
+            self.ppage.WaitToProductpage()
+            self.ppage.PlusQuantity(i)
+            ListP.append(self.ppage.ProductAttributes())
+            ListP[i][2] = 1 + i  # Update of QTY
+            ListP[i][3] = int(ListP[i][2]) * float(ListP[i][3])  # Update of Price
+            self.ppage.AddToCartButton()
+            self.cicon.CartIcon()
+            self.cicon.WaitToCartIcon()
+            ListPicon.append(self.cicon.ProductAttributesIcon(i))
+            self.ppage.BackToCategory()
+            self.cpage.WaitToCategorypage()
+            self.cpage.BackToHomepage()
+            num+=1
+            num2+=1
+        self.assertTrue(self.ppage.EqualProduct(ListP, ListPicon) == 'True')
