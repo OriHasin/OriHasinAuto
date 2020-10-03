@@ -142,7 +142,7 @@ class ProductPage:
     def ProductAttributes(self):  # Create a list with attributes of specific product
         list1 = []
         list1.append(self.driver.find_element_by_css_selector("h1[class='roboto-regular screen768 ng-binding']").text)  # Name
-        list1.append(self.driver.find_element_by_xpath("//span[@id='bunny']").get_attribute("title"))  # Color
+        list1.append(self.driver.find_element_by_xpath("//span[contains(@class,'colorSelected')]").get_attribute('title'))  # Color
         list1.append("")  # Quantity
         price = self.driver.find_element_by_css_selector("article>div>div>h2[class='roboto-thin screen768 ng-binding']").text[1:]
         price = price.replace(',','')
