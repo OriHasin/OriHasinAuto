@@ -14,7 +14,7 @@ from time import sleep
 class AOSTests(TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Chrome(executable_path="C:/Users/admin/Desktop/Drivers/chromedriver.exe")
+        self.driver = webdriver.Chrome(r"C:\Users\97252\Desktop\Selenium\chromedriver.exe")
         self.driver.get("http://advantageonlineshopping.com/#/")
         self.ListOfCategories = ['headphones', 'mice', 'tablets', 'laptops', 'speakers']
         self.hpage = HomePage(self.driver)
@@ -66,7 +66,7 @@ class AOSTests(TestCase):
             while num == 0 and num2 == 1 or (num,num2) in ListNum:  # Out of stock product OR multiply product
                 num2 = randint(0, self.cpage.ProductsInCategory()-1)
             ListNum.append((num,num2))
-            print("ListNum = ",ListNum)  # debug
+            #print("ListNum = ",ListNum)  # debug
             self.cpage.GetProduct(num2)
             self.ppage.WaitToProductpage()
             self.ppage.PlusQuantity(i)
@@ -77,9 +77,12 @@ class AOSTests(TestCase):
             self.cicon.CartIcon()
             self.cicon.WaitToCartIcon()
             ListPicon.append(self.cicon.ProductAttributesIcon(i))
+            if i==0: print(ListPicon)
             self.ppage.BackToCategory()
             self.cpage.WaitToCategorypage()
             self.cpage.BackToHomepage()
             num+=1
             num2+=1
-        self.assertTrue(self.ppage.EqualProduct(ListP, ListPicon) == 'True')
+        print(ListPicon,"Picon")
+        print(ListP,"lISTP")
+        self.assertTrue(self.ppage.EqualProduct(ListP, ListPicon))#Update-bar- remove "True"
