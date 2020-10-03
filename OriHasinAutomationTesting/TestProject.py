@@ -13,6 +13,7 @@ from time import sleep
 
 class AOSTests(TestCase):
 
+
     def setUp(self):
         self.driver = webdriver.Chrome(executable_path="C:/Users/admin/Desktop/Drivers/chromedriver.exe")
         self.driver.get("http://advantageonlineshopping.com/#/")
@@ -24,9 +25,11 @@ class AOSTests(TestCase):
         self.cartpage = CartPage(self.driver)
         self.driver.maximize_window()
 
+
     def tearDown(self):
-        self.driver.find_element_by_xpath('//div[@class="logo"]')
-        #self.driver.close()
+        self.hpage.LogoIcon()
+        self.driver.close()
+
 
     def test_Exercise1(self):
         sumquantity = 0
@@ -44,27 +47,24 @@ class AOSTests(TestCase):
             self.ppage.AddToCartButton()
             self.ppage.BackToCategory()
             self.cpage.BackToHomepage()
-
         self.hpage.WaitToHomepage()
         sleep(1)
-        self.assertEqual(int(self.cicon.NumberOfProducts()), sumquantity + 2 or int(self.cicon.NumberOfProducts()),
-                         sumquantity + 1)
+        self.assertEqual(int(self.cicon.NumberOfProducts()), sumquantity + 2 or int(self.cicon.NumberOfProducts()),sumquantity + 1)
+
 
     def test_Exercise2(self):
         ListC = ['headphones', 'speakers', 'tablets', 'mice', 'laptops']
         ListP = []  # List of products
         ListPicon = []  # List of products in cart icon
         ListNum = []  # List of index of products
-        num=2
-        num2=2
         for i in range(3):
-            #num = randint(0, 4)
+            num = randint(0, 4)
             self.hpage.WaitToHomepage()
             self.hpage.CategoryIcon(ListC[num])
             self.cpage.WaitToCategorypage()
-            #num2 = randint(0, self.cpage.ProductsInCategory()-1)
+            num2 = randint(0, self.cpage.ProductsInCategory()-1)
             while num == 0 and num2 == 1 or (num,num2) in ListNum:  # Out of stock product OR multiply product
-                num2 = randint(0, self.cpage.ProductsInCategory()-1)
+                num2 = randint(0, self.cpage.ProductsInCategory() - 1)
             ListNum.append((num,num2))
             print("ListNum = ",ListNum)  # debug
             self.cpage.GetProduct(num2)
@@ -80,6 +80,64 @@ class AOSTests(TestCase):
             self.ppage.BackToCategory()
             self.cpage.WaitToCategorypage()
             self.cpage.BackToHomepage()
-            num+=1
-            num2+=1
-        self.assertTrue(self.ppage.EqualProduct(ListP, ListPicon) == 'True')
+        self.assertTrue(self.ppage.EqualProduct(ListP, ListPicon))
+
+
+    def test_Exercise4(self):
+        ListC = ['headphones', 'speakers', 'tablets', 'mice', 'laptops']
+        num = randint(0,4)
+        self.hpage.WaitToHomepage()
+        self.hpage.CategoryIcon(ListC[num])
+        self.cpage.WaitToCategorypage()
+        num2 = randint(0, self.cpage.ProductsInCategory()-1)
+        while num == 0 and num2 == 1:
+            num2 = randint(0, self.cpage.ProductsInCategory()-1)
+        self.cpage.GetProduct(num2)
+        self.ppage.WaitToProductpage()
+        self.ppage.AddToCartButton()
+        self.cicon.CartIcon().click()
+        self.cartpage.WaitToCartPage()
+        self.assertTrue(self.cartpage.ShoppingCartText() == 'SHOPPING CART')
+
+
+    def test_Exercise6(self):
+        ListC = ['headphones', 'speakers', 'tablets', 'mice', 'laptops']
+        ListNum = []
+        Plus = 2
+        for i in range(2):  # Added 2 products
+            num = randint(0, 4)
+            self.hpage.WaitToHomepage()
+            self.hpage.CategoryIcon(ListC[num])
+            self.cpage.WaitToCategorypage()
+            num2 = randint(0, self.cpage.ProductsInCategory() - 1)
+            while num == 0 and num2 == 1 or (num, num2) in ListNum:
+                num2 = randint(0, self.cpage.ProductsInCategory() - 1)
+            ListNum.append((num, num2))
+            self.cpage.GetProduct(num2)
+            self.ppage.WaitToProductpage()
+            self.ppage.AddToCartButton()
+            self.hpage.LogoIcon()
+        self.cicon.CartIcon().click()
+        for i in range(2):  # Edit 2 products
+            self.cartpage.WaitToCartPage()
+            self.cartpage.EditButton(i)
+            self.ppage.WaitToProductpage()
+            self.ppage.PlusQuantity(Plus)
+            Plus += 1
+            self.ppage.AddToCartButton()
+        self.assertEqual(self.cartpage.Quantity(0),3)
+        self.assertEqual(self.cartpage.Quantity(1),4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

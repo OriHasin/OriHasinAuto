@@ -15,6 +15,9 @@ class HomePage:
     def CategoryIcon(self, category):
         self.driver.find_element_by_id(f"{category.lower()}Img").click()
 
+    def LogoIcon(self):
+        self.driver.find_element_by_id("Layer_1").click()
+
     def WaitToHomepage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "headphonesImg")))
 
@@ -25,14 +28,20 @@ class CartPage:
     def __init__(self, driver):
         self.driver = driver
 
-    def EditButton(self, index):  # לחיצה כל כפתור עריכה של מוצר ספציפי בעגלת הקניות
+    def EditButton(self, index):
         self.driver.find_elements_by_css_selector("a[class='edit ng-scope']")[index].click()
 
-    def ShoppingCartText(self):  # מחזיר את הטקסט "Shopping Cart" בעגלת הקניות
-        return self.driver.find_element_by_class_name("select  ng-binding").text
+    def Quantity(self,index):
+        return self.driver.find_elements_by_css_selector("tbody>tr>td>label[class='ng-binding']")[index].text
+
+    def ShoppingCartText(self):
+        return self.driver.find_element_by_class_name("select").text
 
     def TotalPrice(self):
         return self.driver.find_element_by_xpath("//span[@class='roboto-medium ng-binding'][3]").text
+
+    def WaitToCartPage(self):
+        WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.CLASS_NAME, "sticky")))
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -48,14 +57,15 @@ class CartIcon:
         return self.driver.find_element_by_xpath('//header//a/span[@ng-show="(cart | productsCartCount) > 0"]').text
 
     def WaitToCartIcon(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"img[class='imageUrl']")))
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, "//li//table[@ng-show='cart.productsInCart.length > 0']")))
 
     def QtyInCartIcon(self, index):
          list1 = self.driver.find_elements_by_xpath("//label[contains(text(),'QTY')]")
          list1 = self.ReplaceList(list1)
          Qty = list1[index].text[5:]
          print(Qty)
-         return Qty
+         return int(Qty)
 
     def PriceInCartIcon(self, index):
         list1 = self.driver.find_elements_by_class_name("price")
@@ -63,7 +73,7 @@ class CartIcon:
         Price = list1[index].text[1:]
         Price = Price.replace(',','')
         print(Price)
-        return Price
+        return float(Price)
 
     def ColorInCartIcon(self, index):
         list1 = self.driver.find_elements_by_css_selector("span[class='ng-binding']")
@@ -155,7 +165,7 @@ class ProductPage:
 
 
     def EqualProduct(self, list1, list2):  # Check if product that added to cart , appearing good in cart icon
-        for i in range(3):# debug
+        for i in range(3): #  debug
             for x in range(4):
                 print("list2")    # debug
                 print(list2[i][x])     # debug
@@ -167,8 +177,6 @@ class ProductPage:
             if str(list2[i][0]) not in str(list1[i][0]):   # First , check the name (Substring)
                 return False
             for x in range(1,4):
-                #print("First " + list1[i][x])
-                #print("Second " + list2[i][x])
                 if list2[i][x] == list1[i][x]:
                     continue
                 else:
