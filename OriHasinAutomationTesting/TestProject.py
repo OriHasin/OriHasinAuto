@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 from selenium import webdriver
-from OriHasinAutomationTesting.Pages import HomePage, CategoryPage, CartPage, CartIcon, ProductPage
+from OriHasinAutomationTesting.Pages import HomePage, CategoryPage, CartPage, CartIcon, ProductPage , UserIcon , OrderPaymentPage
 from random import randint
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,6 +23,8 @@ class AOSTests(TestCase):
         self.ppage = ProductPage(self.driver)
         self.cicon = CartIcon(self.driver)
         self.cartpage = CartPage(self.driver)
+        self.uicon = UserIcon(self.driver)
+        self.opp = OrderPaymentPage(self.driver)
         self.driver.maximize_window()
 
 
@@ -127,6 +129,48 @@ class AOSTests(TestCase):
             self.ppage.AddToCartButton()
         self.assertEqual(self.cartpage.Quantity(0),3)
         self.assertEqual(self.cartpage.Quantity(1),4)
+
+
+    def test_Exercise8(self):
+        ListC = ['headphones', 'speakers', 'tablets', 'mice', 'laptops']
+        num = randint(0, 4)
+        self.hpage.WaitToHomepage()
+        self.hpage.CategoryIcon(ListC[num])
+        self.cpage.WaitToCategorypage()
+        num2 = randint(0, self.cpage.ProductsInCategory() - 1)
+        while num == 0 and num2 == 1:
+            num2 = randint(0, self.cpage.ProductsInCategory() - 1)
+        self.cpage.GetProduct(num2)
+        self.ppage.WaitToProductpage()
+        self.ppage.AddToCartButton()
+        self.cicon.CartIcon().click()
+        self.cartpage.WaitToCartPage()
+        self.cartpage.CheckOutButton()
+        self.opp.WaitToOrderPaymentPage()
+        self.opp.RegisterButton()
+        self.opp.WaitToRegisterPage()
+        self.opp.RegisterUser('Ori125','ori1432@gmail.com','123652112Fe')
+        self.opp.WaitToShippingDetailsPage()
+        self.opp.NextButton()
+        self.opp.WaitToPaymentMethodPage()
+        self.opp.SafePayDetails()
+        self.opp.PayNowSafePay()
+        self.opp.WaitToOrderCompletePage()
+        order_number = self.opp.GetOrderNumber()
+        self.uicon.UserOrdersEnter()
+        self.uicon.WaitToMyOrdersPage()
+        self.assertEqual(self.cicon.LengthListOfProducts(), 0)
+        self.assertTrue(self.uicon.OrderInList(order_number))
+
+
+
+
+
+
+
+
+
+
 
 
 

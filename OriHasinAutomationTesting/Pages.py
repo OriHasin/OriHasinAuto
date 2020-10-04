@@ -8,6 +8,7 @@ from time import sleep
 from random import *
 
 
+
 class HomePage:
     def __init__(self, driver):
         self.driver = driver
@@ -22,7 +23,10 @@ class HomePage:
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "headphonesImg")))
 
 
+
 # --------------------------------------------------------------------------------------------------------------
+
+
 
 class CartPage:
     def __init__(self, driver):
@@ -30,6 +34,9 @@ class CartPage:
 
     def EditButton(self, index):
         self.driver.find_elements_by_css_selector("a[class='edit ng-scope']")[index].click()
+
+    def CheckOutButton(self):
+        self.driver.find_element_by_xpath("//button[@class='roboto-medium tami uft-class ng-binding']").click()
 
     def Quantity(self,index):
         return self.driver.find_elements_by_css_selector("tbody>tr>td>label[class='ng-binding']")[index].text
@@ -44,7 +51,10 @@ class CartPage:
         WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.CLASS_NAME, "sticky")))
 
 
+
 # --------------------------------------------------------------------------------------------------------------
+
+
 
 class CartIcon:
     def __init__(self, driver):
@@ -54,7 +64,10 @@ class CartIcon:
         return self.driver.find_element_by_id("shoppingCartLink")
 
     def NumberOfProducts(self):
-        return self.driver.find_element_by_xpath('//header//a/span[@ng-show="(cart | productsCartCount) > 0"]').text
+        return self.driver.find_element_by_css_selector("nav>ul>li>a>span[class='cart ng-binding']").text
+
+    def LengthListOfProducts(self):
+        return len(self.driver.find_elements_by_xpath('//img [@class="imageUrl"]'))
 
     def WaitToCartIcon(self):
         WebDriverWait(self.driver, 10).until(
@@ -64,7 +77,6 @@ class CartIcon:
          list1 = self.driver.find_elements_by_xpath("//label[contains(text(),'QTY')]")
          list1 = self.ReplaceList(list1)
          Qty = list1[index].text[5:]
-         print(Qty)
          return int(Qty)
 
     def PriceInCartIcon(self, index):
@@ -72,21 +84,18 @@ class CartIcon:
         list1 = self.ReplaceList(list1)
         Price = list1[index].text[1:]
         Price = Price.replace(',','')
-        print(Price)
         return float(Price)
 
     def ColorInCartIcon(self, index):
         list1 = self.driver.find_elements_by_css_selector("span[class='ng-binding']")
         list1 = self.ReplaceList(list1)
         Color = list1[index].text
-        print(Color)
         return Color
 
     def NameInCartIcon(self, index):
         list1 = self.driver.find_elements_by_css_selector("h3[class='ng-binding']")
         list1 = self.ReplaceList(list1)
         Name = list1[index].text[:-3]
-        print(Name)
         return Name
 
     def RemoveInCartIcon(self, index):
@@ -107,7 +116,9 @@ class CartIcon:
         return list2
 
 
+
 # --------------------------------------------------------------------------------------------------------------
+
 
 
 class CategoryPage:
@@ -128,7 +139,9 @@ class CategoryPage:
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "imgProduct")))
 
 
+
 # --------------------------------------------------------------------------------------------------------------
+
 
 
 class ProductPage:
@@ -182,3 +195,88 @@ class ProductPage:
                 else:
                     return False
         return True
+
+
+
+# --------------------------------------------------------------------------------------------------------------
+
+
+
+class OrderPaymentPage:
+
+    def __init__(self,driver):
+        self.driver=driver
+
+    def LoginUser(self,username,password):  #  Insert Username & password to SignIn
+        self.driver.find_element_by_xpath('//input[@name="usernameInOrderPayment"]').send_keys(username)
+        self.driver.find_element_by_xpath('//input[@name="passwordInOrderPayment"]').send_keys(password)
+
+    def RegisterUser(self,username,email,password):  # SignUp with a new account
+        self.driver.find_element_by_css_selector("input[name='usernameRegisterPage']").send_keys(username)
+        self.driver.find_element_by_css_selector("input[name='passwordRegisterPage']").send_keys(password)
+        self.driver.find_element_by_css_selector("input[name='confirm_passwordRegisterPage']").send_keys(password)
+        self.driver.find_element_by_css_selector("input[name='emailRegisterPage']").send_keys(email)
+        self.driver.find_element_by_css_selector("input[name='i_agree']").click()
+        self.driver.find_element_by_id("register_btnundefined").click()
+
+    def RegisterButton(self):
+        self.driver.find_element_by_id("registration_btnundefined").click()
+
+    def LoginButton(self):
+        self.driver.find_element_by_xpath('//button[@id="login_btnundefined"]').click()
+
+    def NextButton(self):
+        self.driver.find_element_by_xpath('//button[@class="a-button nextBtn marginTop75 ng-scope"]').click()
+
+    def EditButton(self):
+        self.driver.find_element_by_xpath('//label[@class="edit  ng-scope"]').click()
+
+    def PayNowSafePay(self):
+        self.driver.find_element_by_id("pay_now_btn_SAFEPAY").click()
+
+    def SafePayDetails(self):
+        self.driver.find_element_by_xpath("//input[@name='safepay_username']").send_keys("11223344")
+        self.driver.find_element_by_xpath("//input[@name='safepay_password']").send_keys("11223344Pp")
+
+    def GetOrderNumber(self):
+       return self.driver.find_element_by_xpath('//label[@id="orderNumberLabel"]').text
+
+    def WaitToOrderPaymentPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h5[@translate='ORDER_SUMMARY']")))
+
+    def WaitToShippingDetailsPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//label[@class="roboto-regular ng-binding selected"]')))
+
+    def WaitToPaymentMethodPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="paymentMethods"]')))
+
+    def WaitToOrderCompletePage(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//div[@class="seccion borderRight"]')))
+
+    def WaitToRegisterPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h3[translate="ACCOUNT_DETAILS"]')))
+
+
+
+# --------------------------------------------------------------------------------------------------------------
+
+
+
+class UserIcon:
+
+    def __init__(self,driver):
+        self.driver=driver
+
+    def UserOrdersEnter(self):
+        self.driver.find_element_by_xpath('//a[@id="menuUserLink"]').click()
+        self.driver.find_element_by_xpath('//a/div/label[@translate="My_Orders"]').click()
+
+    def OrderInList(self, order_number):
+        list1 = self.driver.find_elements_by_css_selector("label[class='ng-binding']")
+        for i in range(len(list1)):
+            if list1[i].text == order_number:
+                return True
+        return False
+
+    def WaitToMyOrdersPage(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//label[@class="ng-binding"]')))
