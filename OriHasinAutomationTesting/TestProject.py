@@ -3,11 +3,7 @@ from unittest import TestCase
 from selenium import webdriver
 from OriHasinAutomationTesting.Pages import HomePage, CategoryPage, CartPage, CartIcon, ProductPage , UserIcon , OrderPaymentPage
 from random import randint
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
 from time import sleep
 
 
@@ -161,6 +157,24 @@ class AOSTests(TestCase):
         self.uicon.WaitToMyOrdersPage()
         self.assertEqual(self.cicon.LengthListOfProducts(), 0)
         self.assertTrue(self.uicon.OrderInList(order_number))
+
+
+    def test_Exercise10(self):
+        self.hpage.WaitToHomepage()
+        self.uicon.UserIcon().click()
+        self.uicon.WaitToLogIn()
+        self.uicon.LoginUserIcon('OriHasin','Ori12345')
+        username = self.uicon.UserName()
+        self.assertTrue(self.uicon.UserName() == username)
+        self.uicon.UserIcon().click()
+        self.uicon.LogoutUserIcon()
+        try:
+            self.uicon.UserName()
+        except NoSuchElementException:
+            pass
+
+
+
 
 
 

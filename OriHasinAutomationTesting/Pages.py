@@ -2,11 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
-from selenium.common.exceptions import StaleElementReferenceException
-from time import sleep
-from random import *
-
 
 
 class HomePage:
@@ -267,6 +262,20 @@ class UserIcon:
     def __init__(self,driver):
         self.driver=driver
 
+    def UserIcon(self):
+        return self.driver.find_element_by_id("menuUserLink")
+
+    def LoginUserIcon(self,username,password):
+        self.driver.find_element_by_css_selector("input[name='username']").send_keys(username)
+        self.driver.find_element_by_css_selector("input[name='password']").send_keys(password)
+        self.driver.find_element_by_id("sign_in_btnundefined").click()
+
+    def LogoutUserIcon(self):
+        self.driver.find_element_by_css_selector("a>div>label[translate='Sign_out']").click()
+
+    def UserName(self):
+        return self.driver.find_element_by_css_selector("nav>ul>li>a>span[data-ng-show='userCookie.response']").text
+
     def UserOrdersEnter(self):
         self.driver.find_element_by_xpath('//a[@id="menuUserLink"]').click()
         self.driver.find_element_by_xpath('//a/div/label[@translate="My_Orders"]').click()
@@ -277,6 +286,9 @@ class UserIcon:
             if list1[i].text == order_number:
                 return True
         return False
+
+    def WaitToLogIn(self):
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[name='password']")))
 
     def WaitToMyOrdersPage(self):
         WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//label[@class="ng-binding"]')))
