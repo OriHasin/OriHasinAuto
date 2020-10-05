@@ -12,6 +12,10 @@ from time import sleep
 
 class AOSTests(TestCase):
 
+    def __init__(self, methodName: str = ...):
+        super().__init__(methodName)
+        self.hpage1 = None
+
     def setUp(self):
         self.driver = webdriver.Chrome(executable_path="C:\selenium_driver\chromedriver.exe")
         self.driver.get("http://advantageonlineshopping.com/#/")
@@ -30,131 +34,98 @@ class AOSTests(TestCase):
         self.driver.close()
 
     def test1(self):
-        self.hpage1=HomePage(self.driver)
-        self.cpage1=CategoryPage(self.driver)
-        self.ppage1=ProductPage(self.driver)
-        cartIcon1=CartIcon(self.driver)
-        sumquantity=0
-        for i in range(2):
-            randomcategory=randint(0,4)
-            randomproduct=randint(0,2)
-            randomquantity=randint(1,5)
-            sumquantity += randomquantity
-            self.hpage1.WaitToHomepage()
-            self.hpage1.CategoryIcon(self.ListOfCategories[randomcategory])
-            self.cpage1.WaitToCategorypage()
-            self.cpage1.GetProduct(randomproduct)
-            self.ppage1.WaitToProductpage()
-            self.ppage1.PlusQuantity(randomquantity)
-            self.ppage1.AddToCartButton()
-            self.ppage1.BackToCategory()
-            self.cpage1.BackToHomepage()
+        sumquantity=2 #sum the quantity of each product is ordered|begins on 2 because the default quantity is 1
+        listqty = [] #list of quantities
+        listcat = [] #list of categories
+        randomquantity = randint(1,5) #rand quantity
+        randomcategory = randint(0,4) #rand category
+        for i in range(2): #order of 2 products
+            randomquantity = self.ppage.RandomQuantityCheck(listqty, randomquantity) #check that quantity not used before
+            listqty.append(randomquantity) #add the current quantity to the QTY list
+            randomcategory = self.cpage.RandomCategoryCheck(listcat, randomcategory) #check that category not used before
+            listcat.append(randomcategory) #add the current category to the CAT list
+            sumquantity += randomquantity #sum
+            self.hpage.WaitToHomepage() #wait
+            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory]) #press on current category
+            self.cpage.WaitToCategorypage() #wait
+            randomproduct = randint(0, self.cpage.ProductsInCategory() - 1) #choose random product from list of products in the current category
+            randomproduct=self.ppage.RandomProductCheck(randomcategory,randomproduct,self.cpage.ProductsInCategory()) #check that product not out of stock
+            self.cpage.GetProduct(randomproduct) #press on current product
+            self.ppage.WaitToProductpage() #wait
+            self.ppage.PlusQuantity(randomquantity) #choose current quantity
+            self.ppage.AddToCartButton() #press on add to cart button
+            self.ppage.BackToCategory() #back to current category
+            self.cpage.BackToHomepage() #back to homepage
 
-        self.hpage1.WaitToHomepage()
-        self.assertEqual(int(cartIcon1.NumberOfProducts()),sumquantity+2 or int(cartIcon1.NumberOfProducts()),sumquantity+1 )
+        self.hpage.WaitToHomepage() #wait
+        self.assertEqual(int(self.cicon.NumberOfProducts()),sumquantity) #check that quantity of products that ordered is equal to actually number of products in cart icon.
 
-    def test_Exercise2(self):
-      #  pointer=3
-        plus=0
-        index=0
-        ListOfProducts = []
-
-        for i in range(3):
-            index2=randint(0,4) # Index of category
-            self.Hpage.WaitToHomepage()
-            self.Hpage.CategoryIcon(self.ListOfCategories[index2])
-            self.Cpage.WaitToCategorypage()
-            index3=randint(0,self.Cpage.NumberOfProducts()-1) # Index of product
-            while index==1 and index3==1: # Specific product that Out Of Stock
-                index3=randint(0,self.Cpage.NumberOfProducts()-1)
-            self.Cpage.GetProduct(index3)
-            self.Ppage.WaitToProductpage()
-            self.Ppage.PlusQuantity(plus)
-            plus+=plus
-            ListOfProducts.append(self.Ppage.ProductAttributes())
-            ListOfProducts[i][2] = (plus+1) # Update quantity of product
-            ListOfProducts[i][3] = (plus+1) * ListOfProducts[i][3] # Update the price by quantity
-            self.Ppage.AddToCartButton()
-            self.Ppage.BackToCategory()
-            self.Cpage.BackToHomepage()
-        for i in range(3):
-            print(ListOfProducts[i][0],"hey")
-            print(self.Cicon.NameInCartIcon(2-i),"bye")
-            self.Cicon.CartIcon()
-            self.assertEqual(ListOfProducts[i][0], self.Cicon.NameInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][1], self.Cicon.ColorInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][2], self.Cicon.QtyInCartIcon(2-i))
-            self.assertEqual(ListOfProducts[i][3], self.Cicon.PriceInCartIcon(2-i))
-            #pointer-=1
 
 
     def test_Exercise3(self):
-        counter1=0
-        for i in range(2):
-            counter1+=1
-            randomcategory=randint(0,4)
-            randomproduct=randint(0,2)
-            randomquantity=randint(1,5)
-            self.hpage.WaitToHomepage()
-            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory])
-            self.cpage.WaitToCategorypage()
-            self.cpage.GetProduct(randomproduct)
-            self.ppage.WaitToProductpage()
-            self.ppage.PlusQuantity(randomquantity)
-            self.ppage.AddToCartButton()
-            self.ppage.BackToCategory()
-            self.cpage.BackToHomepage()
-        if self.cicon.LengthListOfProducts()==counter1:
-            self.cicon.RemoveInCartIcon(1)
-        print(self.cicon.LengthListOfProducts(),counter1)
-        self.assertTrue(counter1==self.cicon.LengthListOfProducts()+1)
+        listqty = [] #list of quantities
+        listcat = [] #list of categories
+        randomquantity = randint(1, 5) #rand quantity
+        randomcategory = randint(0, 4) #rand category
+        counter1=0 #count the items are ordered
+        for i in range(2): #order of 2 products
+            counter1+=1 #count
+            randomquantity = self.ppage.RandomQuantityCheck(listqty, randomquantity) #check that quantity not used before
+            listqty.append(randomquantity) #add the current quantity to the QTY list
+            randomcategory = self.cpage.RandomCategoryCheck(listcat, randomcategory) #check that category not used before
+            listcat.append(randomcategory) #add the current category to the CAT list
+            self.hpage.WaitToHomepage() #wait
+            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory]) #press on current category
+            self.cpage.WaitToCategorypage() #wait
+            randomproduct = randint(0, self.cpage.ProductsInCategory() - 1) #choose random product from list of products in the current category
+            randomproduct = self.ppage.RandomProductCheck(randomcategory, randomproduct,self.cpage.ProductsInCategory())  # check that product not out of stock
+            self.cpage.GetProduct(randomproduct) #press on current product
+            self.ppage.WaitToProductpage() #wait
+            self.ppage.PlusQuantity(randomquantity) #choose current quantity
+            self.ppage.AddToCartButton() #press on add to cart button
+            self.ppage.BackToCategory() #back to current category
+            self.cpage.BackToHomepage() #back to homepage
+        if self.cicon.LengthListOfProducts()==counter1: #check that count equal to length list of products in cart icon
+            self.cicon.RemoveInCartIcon(1) #remove one product from order
+        print("The quantity of products after remove one is:", self.cicon.LengthListOfProducts(), "The quantity of products that ordered: ", counter1) #debug
+        self.assertTrue(counter1==self.cicon.LengthListOfProducts()+1) #check that the product actually removed from order
 
     def test_Exercise5(self):
-        listqty=[]
-        listcat=[]
-        randomquantity = randint(1,5)
-        randomcategory = randint(0,4)
-        for i in range(3):
-            bool1=True
-            while bool1:
-                if randomquantity in listqty:
-                    randomquantity = randint(1,5)
-                else:
-                    listqty.append(randomquantity)
-                    bool1=False
-            bool2=True
-            while bool2:
-                if randomcategory in listcat:
-                    randomcategory = randint(0,4)
-                else:
-                    listcat.append(randomcategory)
-                    bool2=False
-            randomproduct = randint(0, 2)
-            self.hpage.WaitToHomepage()
-            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory])
-            self.cpage.WaitToCategorypage()
-            self.cpage.GetProduct(randomproduct)
-            self.ppage.WaitToProductpage()
-            self.ppage.PlusQuantity(randomquantity)
-            self.ppage.AddToCartButton()
-            self.ppage.BackToCategory()
-            self.cpage.BackToHomepage()
-            randomquantity = randint(1,5)
-            randomcategory = randint(0,4)
-        self.cicon.CartIcon().click()
-        self.cartpage.WaitToCartpage()
-        sumprices=0
-        for i in range(0,3,1):
-            tmpprice=self.cartpage.ProductPriceInCart(i)
-            tmpprice=tmpprice.replace(",","")
-            tmpprice=tmpprice[1:]
-            sumprices+=float(tmpprice)
-            print(sumprices)
-            print("The Product Name Is:" + self.cartpage.ProductNameInCart(i) + "The QTY Is:" + self.cartpage.ProductQtyInCart(i) + "The Price Is:" + self.cartpage.ProductPriceInCart(i))
-        totalprice=self.cartpage.TotalPrice()
-        totalprice=totalprice.replace(",","")
-        totalprice=totalprice[1:]
-        self.assertEqual(float(totalprice),round(sumprices,2))
+        listqty=[] #list of quantities
+        listcat=[] #list of categories
+        randomquantity = randint(1,5) #rand quantity
+        randomcategory = randint(0,4) #rand category
+        for i in range(3): #add to cart three different products in different quantities
+            randomquantity=self.ppage.RandomQuantityCheck(listqty,randomquantity) #check that quantity not used before
+            listqty.append(randomquantity) #add the current quantity to the QTY list
+            randomcategory=self.cpage.RandomCategoryCheck(listcat,randomcategory) #check that category not used before
+            listcat.append(randomcategory) #add the current category to the CAT list
+            self.hpage.WaitToHomepage() #wait
+            self.hpage.CategoryIcon(self.ListOfCategories[randomcategory]) #press on current category
+            self.cpage.WaitToCategorypage() #wait
+            randomproduct = randint(0, self.cpage.ProductsInCategory() - 1) #choose random product from list of products in the current category
+            randomproduct = self.ppage.RandomProductCheck(randomcategory, randomproduct,self.cpage.ProductsInCategory())  # check that product not out of stock
+            self.cpage.GetProduct(randomproduct) #press on current product
+            self.ppage.WaitToProductpage() #wait
+            self.ppage.PlusQuantity(randomquantity) #choose current quantity
+            self.ppage.AddToCartButton() #press on add to cart button
+            self.ppage.BackToCategory() #back to current category
+            self.cpage.BackToHomepage() #back to homepage
+            randomquantity = randint(1,5) #rand quantity
+            randomcategory = randint(0,4) #rand category
+        self.cicon.CartIcon().click() #enter to cart page
+        self.cartpage.WaitToCartpage() #wait
+        sumprices=0 #sum of prices of products that were ordered
+        for i in range(0,3,1): #
+            tmpprice=self.cartpage.ProductPriceInCart(i) #catch the product price from cart page into a varriable
+            tmpprice=tmpprice.replace(",","") #remove the ',' from the varriable
+            tmpprice=tmpprice[1:] #slice the number without the '$'
+            sumprices+=float(tmpprice) #add the number to sumprices
+            print("The Product Name Is: " + self.cartpage.ProductNameInCart(i) + " ,The QTY Is: " + self.cartpage.ProductQtyInCart(i) + " And The Price Is: " + self.cartpage.ProductPriceInCart(i)) #present the product
+        totalprice=self.cartpage.TotalPrice() #catch the total price of the order into a varriable
+        totalprice=totalprice.replace(",","") #remove the ',' from the varriable
+        totalprice=totalprice[1:] #slice the number without the '$'
+        self.assertEqual(float(totalprice),round(sumprices,2)) #check that total price of the order is equal to the sum of the prices of products in order
 
     def test_Exercise7(self):
         self.hpage.WaitToHomepage() #wait to homepage
@@ -173,31 +144,31 @@ class AOSTests(TestCase):
 
     def test_Exercise9(self):
         self.hpage.WaitToHomepage()  # wait to homepage
-        self.hpage.CategoryIcon("tablets")  # enter category tablets
+        self.hpage.CategoryIcon('tablets')
         self.cpage.WaitToCategorypage()  # wait to category page
-        self.cpage.GetProduct(randint(0, 2))  # choose random product
+        randomproduct = randint(0, self.cpage.ProductsInCategory() - 1)
+        self.cpage.GetProduct(randomproduct)  # choose random product
         self.ppage.WaitToProductpage()  # wait to product page
         self.ppage.PlusQuantity(randint(1, 9))  # add random quantity
         self.ppage.AddToCartButton()  # add to cart
-        self.cicon.CartIcon().click()
-        self.cartpage.WaitToCartpage()
-        self.cartpage.CheckoutButtonCartpage()
-        self.orderpayment.WaitToOrderPaymentPage()
-        self.orderpayment.InsertUserExist("zivush","Zzziiivvv4")
-        self.orderpayment.LogInButton()
-        self.orderpayment.WaitToShippingDetailsPage()
-        sleep(3)
-        self.orderpayment.NextButton()
-        self.orderpayment.WaitToPaymentMethodPage()
-        self.orderpayment.PayNowButton()
-        self.orderpayment.WaitToOrderCompletePage()
-        ordernumber = self.orderpayment.OrderNumberGet()
-        print("hey",ordernumber)
-        sleep(3)
-        self.assertEqual(self.cicon.LengthListOfProducts(),0)
-        self.usericon.UserOrdersEnter()
-        self.usericon.WaitToMyOrdersPage()
-        self.assertTrue(self.usericon.OrderInList(ordernumber))
+        self.cicon.CartIcon().click() #enter to cart page
+        self.cartpage.WaitToCartpage() #wait
+        self.cartpage.CheckoutButtonCartpage() #press on check out button
+        self.orderpayment.WaitToOrderPaymentPage() #wait
+        self.orderpayment.InsertUserExist("zivush","Zzziiivvv4") #log in with user exist
+        self.orderpayment.LogInButton() #press on log in button
+        self.orderpayment.WaitToShippingDetailsPage() #wait
+        self.orderpayment.NextButton() #press on next button
+        self.orderpayment.WaitToPaymentMethodPage() #wait
+        self.orderpayment.PayNowButtonMasterCard() #press on pay now with master card
+        self.orderpayment.WaitToOrderCompletePage() #wait
+        ordernumber = self.orderpayment.OrderNumberGet() #catch order number into varriable
+        print("hey",ordernumber) #debug(check that catched)
+        self.orderpayment.WaitToOrderCompletePage() #wait to icon cart will be empty
+        self.assertEqual(self.cicon.LengthListOfProducts(),0) #check that there is no products in cart icon
+        self.usericon.UserOrdersEnter() #enter to 'My Orders' page
+        self.usericon.WaitToMyOrdersPage() #wait
+        self.assertTrue(self.usericon.OrderInList(ordernumber)) #check that the current order number in the list of my orders
 
 
 

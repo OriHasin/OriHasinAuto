@@ -78,7 +78,7 @@ class CartIcon:
         return self.driver.find_elements_by_css_selector("h3[class='ng-binding']")[index].text
     def RemoveInCartIcon(self,index):
         return self.driver.find_elements_by_css_selector("[class='removeProduct iconCss iconX']")[index].click()
-    def LengthListOfProducts(self):
+    def LengthListOfProducts(self): #quantity of list of products in cart icon
         return len(self.driver.find_elements_by_xpath('//img [@class="imageUrl"]'))
 
 
@@ -102,6 +102,16 @@ class CategoryPage:
 
     def TabletsCategoryValidation(self):
         return self.driver.find_elements_by_xpath("//h4[@href='javascript:void(0)']")
+
+    def RandomCategoryCheck(self,list1,category):
+        bool=True
+        while bool:
+            if category in list1:
+                category = randint(0, 4)
+            else:
+                list1.append(category)
+                bool=False
+        return category
 
     def WaitToCategorypage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "imgProduct")))
@@ -135,6 +145,26 @@ class ProductPage:
         list1.append(self.driver.find_element_by_css_selector("article>div>div>h2[class='roboto-thin screen768 ng-binding']").text) # Price
         return list1
 
+    def RandomQuantityCheck(self,list1,quantity): #check that quantity not used
+        bool=True
+        while bool:
+            if quantity in list1:
+                quantity = randint(0, 4)
+            else:
+                list1.append(quantity)
+                bool=False
+        return quantity
+
+    def RandomProductCheck(self,category,product,length): #check that product isn't sold out
+        bool1=True
+        while bool1:
+            if category==0 and product==1:
+                product=randint(0,length-1)
+            else:
+                bool1=False
+        return product
+
+
     def WaitToProductpage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.NAME, "save_to_cart")))
 
@@ -143,7 +173,7 @@ class OrderPaymentPage:
     def __init__(self,driver):
         self.driver=driver
 
-    def InsertUserExist(self,username,password):
+    def InsertUserExist(self,username,password): #insert details of user exist
         self.driver.find_element_by_xpath('//input[@name="usernameInOrderPayment"]').send_keys(username)
         self.driver.find_element_by_xpath('//input[@name="passwordInOrderPayment"]').send_keys(password)
 
@@ -166,7 +196,7 @@ class OrderPaymentPage:
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h5[@translate='ORDER_SUMMARY']")))
 
     def WaitToShippingDetailsPage(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//label[@class="roboto-regular ng-binding selected"]')))
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//div[@id="userDetails"]')))
 
     def WaitToPaymentMethodPage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="paymentMethods"]')))
@@ -174,15 +204,18 @@ class OrderPaymentPage:
     def WaitToOrderCompletePage(self):
         WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//div[@class="seccion borderRight"]')))
 
+    def WaitToEmptyCart(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//label[@translate="Your_shopping_cart_is_empty"]')))
+
 class UserIcon:
     def __init__(self,driver):
         self.driver=driver
 
-    def UserOrdersEnter(self):
+    def UserOrdersEnter(self): #enter to my orders page
         self.driver.find_element_by_xpath('//a[@id="menuUserLink"]').click()
         self.driver.find_element_by_xpath('//a/div/label[@translate="My_Orders"]').click()
 
-    def OrderInList(self,ordernumber):
+    def OrderInList(self,ordernumber): #check if order number in my orders
         list1=self.driver.find_elements_by_css_selector("label[class='ng-binding']")
         reversed(list1)
         for i in range(len(list1)):
