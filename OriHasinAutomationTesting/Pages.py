@@ -11,6 +11,10 @@ class HomePage:
     def CategoryIcon(self, category):
         self.driver.find_element_by_id(f"{category.lower()}Img").click()
 
+    def HomePageValidation(self):
+        return self.driver.find_elements_by_xpath("//div[@href='javascript:void(0)']")
+
+
     def LogoIcon(self):
         self.driver.find_element_by_id("Layer_1").click()
 
@@ -27,8 +31,18 @@ class CartPage:
     def __init__(self, driver):
         self.driver = driver
 
-    def EditButton(self, index):
-        self.driver.find_elements_by_css_selector("a[class='edit ng-scope']")[index].click()
+    def ProductPriceInCart(self,index):
+        #index+=3
+        return self.driver.find_elements_by_xpath('//p [@class="price roboto-regular ng-binding"]')[index].text
+
+    def ProductNameInCart(self,index):
+        return self.driver.find_elements_by_xpath('//label [@class="roboto-regular productName ng-binding"]')[index].text
+
+    def ProductQtyInCart(self,index):
+        return self.driver.find_elements_by_xpath('//tbody/tr/td/label [@class="ng-binding"]')[index].text
+
+    def EditButton(self,index): # לחיצה כל כפתור עריכה של מוצר ספציפי בעגלת הקניות
+         self.driver.find_elements_by_css_selector("a[class='edit ng-scope']")[index].click()
 
     def CheckOutButton(self):
         self.driver.find_element_by_xpath("//button[@class='roboto-medium tami uft-class ng-binding']").click()
@@ -40,7 +54,12 @@ class CartPage:
         return self.driver.find_element_by_class_name("select").text
 
     def TotalPrice(self):
-        return self.driver.find_element_by_xpath("//span[@class='roboto-medium ng-binding'][3]").text
+        return self.driver.find_element_by_xpath('// *[ @ id = "shoppingCart"] / table / tfoot / tr[1] / td[2] / span[2]').text
+
+    def CheckoutButtonCartpage(self):
+        self.driver.find_element_by_xpath("//button[@class='roboto-medium tami uft-class ng-binding']").click()
+
+
 
     def WaitToCartPage(self):
         WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.CLASS_NAME, "sticky")))
@@ -95,6 +114,9 @@ class CartIcon:
 
     def RemoveInCartIcon(self, index):
         return self.driver.find_elements_by_css_selector("[class='removeProduct iconCss iconX']")[index].click()
+    def LengthListOfProducts(self): #quantity of list of products in cart icon
+        return len(self.driver.find_elements_by_xpath('//img [@class="imageUrl"]'))
+
 
     def ProductAttributesIcon(self,index):  # Create a list with attributes of product ( product that appeared in cart icon )
         list1 = []
@@ -129,6 +151,19 @@ class CategoryPage:
 
     def ProductsInCategory(self): # Return the number of products each category
         return len(self.driver.find_elements_by_css_selector("img[class='imgProduct']"))
+
+    def TabletsCategoryValidation(self):
+        return self.driver.find_elements_by_xpath("//h4[@href='javascript:void(0)']")
+
+    def RandomCategoryCheck(self,list1,category):
+        bool=True
+        while bool:
+            if category in list1:
+                category = randint(0, 4)
+            else:
+                list1.append(category)
+                bool=False
+        return category
 
     def WaitToCategorypage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "imgProduct")))
@@ -167,9 +202,86 @@ class ProductPage:
         list1.append(price)  # Price
         return list1
 
+    def RandomQuantityCheck(self,list1,quantity): #check that quantity not used
+        bool=True
+        while bool:
+            if quantity in list1:
+                quantity = randint(0, 4)
+            else:
+                list1.append(quantity)
+                bool=False
+        return quantity
+
+    def RandomProductCheck(self,category,product,length): #check that product isn't sold out
+        bool1=True
+        while bool1:
+            if category==0 and product==1:
+                product=randint(0,length-1)
+            else:
+                bool1=False
+        return product
+
 
     def WaitToProductpage(self):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.NAME, "save_to_cart")))
+
+class OrderPaymentPage:
+
+    def __init__(self,driver):
+        self.driver=driver
+
+    def InsertUserExist(self,username,password): #insert details of user exist
+        self.driver.find_element_by_xpath('//input[@name="usernameInOrderPayment"]').send_keys(username)
+        self.driver.find_element_by_xpath('//input[@name="passwordInOrderPayment"]').send_keys(password)
+
+    def LogInButton(self):
+        self.driver.find_element_by_xpath('//button[@id="login_btnundefined"]').click()
+
+    def NextButton(self):
+        self.driver.find_element_by_xpath('//button[@class="a-button nextBtn marginTop75 ng-scope"]').click()
+
+    def EditButton(self):
+        self.driver.find_element_by_xpath('//label[@class="edit  ng-scope"]').click()
+
+    def PayNowButtonMasterCard(self):
+        self.driver.find_element_by_xpath('//button[@style="    margin-bottom: 5px;"]').click()
+
+    def OrderNumberGet(self):
+       return self.driver.find_element_by_xpath('//label[@id="orderNumberLabel"]').text
+
+    def WaitToOrderPaymentPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h5[@translate='ORDER_SUMMARY']")))
+
+    def WaitToShippingDetailsPage(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//div[@id="userDetails"]')))
+
+    def WaitToPaymentMethodPage(self):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="paymentMethods"]')))
+
+    def WaitToOrderCompletePage(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//div[@class="seccion borderRight"]')))
+
+    def WaitToEmptyCart(self):
+        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//label[@translate="Your_shopping_cart_is_empty"]')))
+
+class UserIcon:
+    def __init__(self,driver):
+        self.driver=driver
+
+    def UserOrdersEnter(self): #enter to my orders page
+        self.driver.find_element_by_xpath('//a[@id="menuUserLink"]').click()
+        self.driver.find_element_by_xpath('//a/div/label[@translate="My_Orders"]').click()
+
+    def OrderInList(self,ordernumber): #check if order number in my orders
+        list1=self.driver.find_elements_by_css_selector("label[class='ng-binding']")
+        reversed(list1)
+        for i in range(len(list1)):
+            if list1[i].text == ordernumber:
+                return True
+        return False
+
+    def WaitToMyOrdersPage(self):
+        WebDriverWait(self.driver, 16).until(EC.presence_of_element_located((By.XPATH, '//label[@class="center ng-binding"]')))
 
 
     def EqualProduct(self, list1, list2):  # Check if product that added to cart , appearing good in cart icon
